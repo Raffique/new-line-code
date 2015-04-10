@@ -67,6 +67,7 @@ Servo lClaw;
 
 
 int IRL_in;
+int Tcount=0;
 
 
 void setup() {
@@ -140,8 +141,8 @@ IRL_in=0;
 for (int i=0; i<8; i++)
 { IRL_in = (IRL_in << 1) + digitalRead(IRL_PIN_s7 - i);}
 
-if (IRL_in == 0b11111111) // stop strider
-{nothing();}
+/*if (IRL_in == 0b11111111) // stop strider
+{nothing();}*/
     
 if ( (IRL_in == 0b11000011) || (IRL_in == 0b11100011) || (IRL_in == 0b11000111) || (IRL_in == 0b11000111) ) // strider go forward
 {forward();}
@@ -160,6 +161,8 @@ if ((IRL_in == 0b00001111) || (IRL_in == 0b00011111) || (IRL_in == 0b00111111)) 
 */
 if (IRL_in == 0b00000000)
 {
+                      
+                       Tcount=Tcount+1;
         	        analogWrite(MFR_PWM_PIN, 0);
 			analogWrite(MFL_PWM_PIN, 0);
 			analogWrite(MBR_PWM_PIN, 0);
@@ -173,6 +176,7 @@ if (IRL_in == 0b00000000)
                         {
                            Serial.println("while < 0b11111111");
                           forward();
+                          delay(500);
                           ReadIRL();
                           /*delay(200);
                           nothing();
@@ -185,7 +189,7 @@ if (IRL_in == 0b00000000)
                         while(IRL_in == 0b11111111)
                         {
                           Serial.println("while == 0b11111111");
-                              right();
+                              left();
                               //delay(1000);
                               
                               //nothing();
@@ -195,6 +199,19 @@ if (IRL_in == 0b00000000)
                         Serial.println("stop after == 0b11111111");
                         nothing();
                         delay(2000);
+                        
+                        if (Tcount == 2)
+                        {
+                          do
+                          {
+                          Serial.println("tcount");
+                        analogWrite(MFR_PWM_PIN, 0);
+			analogWrite(MFL_PWM_PIN, 0);
+			analogWrite(MBR_PWM_PIN, 0);
+			analogWrite(MBL_PWM_PIN, 0);
+                        // do game challenge
+                          } while(Tcount!=3);
+                      }
 
                        
 }
@@ -309,10 +326,10 @@ void left()
 {
                        // strider moves up abit to make centre inline with turn
                         Serial.println("left turn case 2");
-                        Serial.println(IRL_in, BIN);
+
                         
                   // delay should be enough to make center of strider inline with turn
-                        digitalWrite(MFR_A_PIN, LOW);
+                     /*   digitalWrite(MFR_A_PIN, LOW);
 			digitalWrite(MFR_B_PIN, HIGH);
 			
 			digitalWrite(MBR_A_PIN, HIGH);
@@ -341,7 +358,7 @@ void left()
                        
                        // loop to spin strider until line follower lines up
                         while ((IRL_in != 0b11000011) || (IRL_in != 0b11000111) || (IRL_in != 0b11100011) )
-                        {
+                        {*/
                           
                         
                         digitalWrite(MFR_A_PIN, LOW);
@@ -356,19 +373,19 @@ void left()
 			digitalWrite(MBL_A_PIN, HIGH);
 			digitalWrite(MBL_B_PIN, LOW);
 		
-			analogWrite(MFR_PWM_PIN, 147);
-			analogWrite(MFL_PWM_PIN, 157);
+			analogWrite(MFR_PWM_PIN, 255);
+			analogWrite(MFL_PWM_PIN, 255);
 			
-			analogWrite(MBR_PWM_PIN, 130);
-			analogWrite(MBL_PWM_PIN, 130);
+			analogWrite(MBR_PWM_PIN, 255);
+			analogWrite(MBL_PWM_PIN, 255);
 
-                        IRL_in=0;
+                      /*  IRL_in=0;
                         for (int i=0; i<8; i++)
                         {  
                          IRL_in = (IRL_in << 1) + digitalRead(IRL_PIN_s7 - i);
                         }
                         
-                        } 
+                        } */
 
 }
 
@@ -376,7 +393,7 @@ void right()
 {
           // strider moves up abit to make centre inline with turn
                         Serial.println("right turn case 2");
-                        Serial.println(IRL_in, BIN);
+ 
                         
                         // delay should be enough to make center of strider inline with turn
                        /* digitalWrite(MFR_A_PIN, LOW);
