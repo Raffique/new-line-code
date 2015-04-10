@@ -174,22 +174,24 @@ if (IRL_in == 0b00000000)
                         ReadIRL();
                         while(IRL_in < 0b11111111)
                         {
-                           Serial.println("while < 0b11111111");
-                          forward();
-                          delay(500);
+                           //Serial.println("while < 0b11111111");
+                          forward(); Serial.println("1"); Serial.println(IRL_in, BIN);
+                          //nothing();
                           ReadIRL();
+   
                           /*delay(200);
                           nothing();
                           delay(200);*/
                           
                         }
+                          nothing(); Serial.println("2");
                            Serial.println("stopped after < 111111111");
                           nothing();
                           delay(200);
                         while(IRL_in == 0b11111111)
                         {
                           Serial.println("while == 0b11111111");
-                              left();
+                              left(); Serial.println("3");
                               //delay(1000);
                               
                               //nothing();
