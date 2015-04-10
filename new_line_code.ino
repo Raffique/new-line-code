@@ -135,17 +135,84 @@ Serial.begin(9600);
 }
 
 void loop() {
+
 IRL_in=0;
 for (int i=0; i<8; i++)
-{ 
-  
-  IRL_in = (IRL_in << 1) + digitalRead(IRL_PIN_s7 - i);
+{ IRL_in = (IRL_in << 1) + digitalRead(IRL_PIN_s7 - i);}
+
+if (IRL_in == 0b11111111) // stop strider
+{nothing();}
+    
+if ( (IRL_in == 0b11000011) || (IRL_in == 0b11100011) || (IRL_in == 0b11000111) || (IRL_in == 0b11000111) ) // strider go forward
+{forward();}
+      
+if ( (digitalRead(IRL_PIN_s6) == 0) || (digitalRead(IRL_PIN_s6) == 0) && (digitalRead(IRL_PIN_s7) ==0 ) ) // curve strider to follow line
+{curveleft();} 
+    
+if ( (digitalRead(IRL_PIN_s1) == 0) || (digitalRead(IRL_PIN_s1) == 0) && (digitalRead(IRL_PIN_s0) ==0 ) ) // curve strider to follow line
+{curveright();}
+    
+/*if ((IRL_in == 0b11110000) || (IRL_in == 0b11100000) || (IRL_in == 0b11000000)) // turn right at angle
+{right();}
+     
+if ((IRL_in == 0b00001111) || (IRL_in == 0b00011111) || (IRL_in == 0b00111111)) // turn left at angle
+{left();}  
+*/
+if (IRL_in == 0b00000000)
+{
+        	        analogWrite(MFR_PWM_PIN, 0);
+			analogWrite(MFL_PWM_PIN, 0);
+			analogWrite(MBR_PWM_PIN, 0);
+			analogWrite(MBL_PWM_PIN, 0);
+                        Serial.println("stopped");
+                        delay(2000);
+                        //while(~(IRL_in == 0b11000011) || (IRL_in == 0b11100011) || (IRL_in == 0b11000111) || (IRL_in == 0b11000111)||(IRL_in == 0b11101111)||(IRL_in == 0b11110111)){
+                        //while(IRL_in<255){
+                        ReadIRL();
+                        while(IRL_in < 0b11111111)
+                        {
+                           Serial.println("while < 0b11111111");
+                          forward();
+                          ReadIRL();
+                          /*delay(200);
+                          nothing();
+                          delay(200);*/
+                          
+                        }
+                           Serial.println("stopped after < 111111111");
+                          nothing();
+                          delay(200);
+                        while(IRL_in == 0b11111111)
+                        {
+                          Serial.println("while == 0b11111111");
+                              right();
+                              //delay(1000);
+                              
+                              //nothing();
+                              //delay(100);
+                              ReadIRL();
+                        }
+                        Serial.println("stop after == 0b11111111");
+                        nothing();
+                        delay(2000);
+
+                       
+}
+                        }
+                        
+
+void ReadIRL(void)
+{
+  IRL_in = 0;
+  for (int i=0; i<8; i++){
+      IRL_in = (IRL_in << 1) + digitalRead(IRL_PIN_s7 - i);
+    }
 }
 
-      if (IRL_in == 0b11111111)
-    {
-                       Serial.println("Stop");
-                       Serial.println(IRL_in, BIN);
+void nothing()
+{
+                         Serial.println("Stop");
+                         Serial.println(IRL_in, BIN);
                         
                         digitalWrite(MFR_A_PIN, LOW);
 			digitalWrite(MFR_B_PIN, LOW);
@@ -158,17 +225,18 @@ for (int i=0; i<8; i++)
 		
 			digitalWrite(MBL_A_PIN, LOW);
 			digitalWrite(MBL_B_PIN, LOW);
+
       			analogWrite(MFR_PWM_PIN, 0);
 			analogWrite(MFL_PWM_PIN, 0);
 			
 			analogWrite(MBR_PWM_PIN, 0);
 			analogWrite(MBL_PWM_PIN, 0);
-    }
+    
+}
 
-  if ((IRL_in == 0b11000011) || (IRL_in == 0b11100011) || (IRL_in == 0b11000111))
-      {
-        Serial.println("forward");
-        Serial.println(IRL_in, BIN);
+void forward()
+{
+                         Serial.println("forward");
   
                         digitalWrite(MFR_A_PIN, LOW);
 			digitalWrite(MFR_B_PIN, HIGH);
@@ -186,12 +254,12 @@ for (int i=0; i<8; i++)
 			analogWrite(MFL_PWM_PIN, 157);
 			
 			analogWrite(MBR_PWM_PIN, 130);
-			analogWrite(MBL_PWM_PIN, 130);  
-      }
-  
-   if ( (digitalRead(IRL_PIN_s6) == 0) /*|| (digitalRead(IRL_PIN_s6) && digitalRead(IRL_PIN_s7) ==0 )*/ )
-    {
-                    //add more pwm to  to right wheel front
+			analogWrite(MBL_PWM_PIN, 130);
+}
+
+void curveleft()
+{
+                        //add more pwm to  to right wheel front
                      Serial.println("left curve");
                      Serial.println(IRL_in, BIN);
                         digitalWrite(MFR_A_PIN, LOW);
@@ -206,16 +274,16 @@ for (int i=0; i<8; i++)
 			digitalWrite(MBL_A_PIN, LOW);
 			digitalWrite(MBL_B_PIN, HIGH);
 		
-			analogWrite(MFR_PWM_PIN, 157); //add more when necessay
-			analogWrite(MFL_PWM_PIN, 157);
+			analogWrite(MFR_PWM_PIN, 255); //add more when necessay // 147
+			analogWrite(MFL_PWM_PIN, 0); // 157
 			
-			analogWrite(MBR_PWM_PIN, 130);
-			analogWrite(MBL_PWM_PIN, 130);
-    } 
-   
-     if ( (digitalRead(IRL_PIN_s1) == 0) /*|| (digitalRead(IRL_PIN_s1) && digitalRead(IRL_PIN_s0) ==0 )*/ )
-    {
-                    //add more pwm to  to right wheel front
+			analogWrite(MBR_PWM_PIN, 255); // 130
+			analogWrite(MBL_PWM_PIN, 0); // 130
+}
+
+void curveright()
+{
+                      //add more pwm to  to right wheel front
                      Serial.println("right curve");
                      Serial.println(IRL_in, BIN);
                         digitalWrite(MFR_A_PIN, LOW);
@@ -230,18 +298,20 @@ for (int i=0; i<8; i++)
 			digitalWrite(MBL_A_PIN, LOW);
 			digitalWrite(MBL_B_PIN, HIGH);
 		
-			analogWrite(MFR_PWM_PIN, 147); 
-			analogWrite(MFL_PWM_PIN, 167); //add more when necessay
+			analogWrite(MFR_PWM_PIN, 0); //147
+			analogWrite(MFL_PWM_PIN, 255); //add more when necessay //157
 			
-			analogWrite(MBR_PWM_PIN, 130);
-			analogWrite(MBL_PWM_PIN, 130);
-    } 
-    
-   /* if ((IRL_in == 0b11110000) || (IRL_in == 0b11100000) || (IRL_in == 0b11000000))
-    {
-       strider moves up abit to make centre inline with turn
-                     Serial.println("right turn case 2");
-                     Serial.println(IRL_in, BIN);
+			analogWrite(MBR_PWM_PIN, 0); // 130
+			analogWrite(MBL_PWM_PIN, 255); //130
+}
+
+void left()
+{
+                       // strider moves up abit to make centre inline with turn
+                        Serial.println("left turn case 2");
+                        Serial.println(IRL_in, BIN);
+                        
+                  // delay should be enough to make center of strider inline with turn
                         digitalWrite(MFR_A_PIN, LOW);
 			digitalWrite(MFR_B_PIN, HIGH);
 			
@@ -259,22 +329,61 @@ for (int i=0; i<8; i++)
 			
 			analogWrite(MBR_PWM_PIN, 130);
 			analogWrite(MBL_PWM_PIN, 130);
-                        delay(200);// delay should be enough to make center of strider inline with turn
+                        delay(200);
                         
+                         // stop strider for turning
                         analogWrite(MFR_PWM_PIN, 0);
 			analogWrite(MFL_PWM_PIN, 0);
 			
 			analogWrite(MBR_PWM_PIN, 0);
 			analogWrite(MBL_PWM_PIN, 0);
-                        delay(2500); // stop strider for turning
-                        
-                        do
+                        delay(2500);
+                       
+                       // loop to spin strider until line follower lines up
+                        while ((IRL_in != 0b11000011) || (IRL_in != 0b11000111) || (IRL_in != 0b11100011) )
                         {
-                        digitalWrite(MFR_A_PIN, HIGH);
-			digitalWrite(MFR_B_PIN, LOW);
+                          
+                        
+                        digitalWrite(MFR_A_PIN, LOW);
+			digitalWrite(MFR_B_PIN, HIGH);
 			
-			digitalWrite(MBR_A_PIN, LOW);
-			digitalWrite(MBR_B_PIN, HIGH);
+			digitalWrite(MBR_A_PIN, HIGH);
+			digitalWrite(MBR_B_PIN, LOW);
+		
+			digitalWrite(MFL_A_PIN, HIGH);
+			digitalWrite(MFL_B_PIN, LOW);
+		
+			digitalWrite(MBL_A_PIN, HIGH);
+			digitalWrite(MBL_B_PIN, LOW);
+		
+			analogWrite(MFR_PWM_PIN, 147);
+			analogWrite(MFL_PWM_PIN, 157);
+			
+			analogWrite(MBR_PWM_PIN, 130);
+			analogWrite(MBL_PWM_PIN, 130);
+
+                        IRL_in=0;
+                        for (int i=0; i<8; i++)
+                        {  
+                         IRL_in = (IRL_in << 1) + digitalRead(IRL_PIN_s7 - i);
+                        }
+                        
+                        } 
+
+}
+
+void right()
+{
+          // strider moves up abit to make centre inline with turn
+                        Serial.println("right turn case 2");
+                        Serial.println(IRL_in, BIN);
+                        
+                        // delay should be enough to make center of strider inline with turn
+                       /* digitalWrite(MFR_A_PIN, LOW);
+			digitalWrite(MFR_B_PIN, HIGH);
+			
+			digitalWrite(MBR_A_PIN, HIGH);
+			digitalWrite(MBR_B_PIN, LOW);
 		
 			digitalWrite(MFL_A_PIN, LOW);
 			digitalWrite(MFL_B_PIN, HIGH);
@@ -287,20 +396,46 @@ for (int i=0; i<8; i++)
 			
 			analogWrite(MBR_PWM_PIN, 130);
 			analogWrite(MBL_PWM_PIN, 130);
-                        } while ((IRL_in != 0b11000011) || (IRL_in != 0b11000111) || (IRL_in != 0b11100011) );
+                        delay(200);
                         
+                         // stop strider for turning
+                        analogWrite(MFR_PWM_PIN, 0);
+			analogWrite(MFL_PWM_PIN, 0);
+			
+			analogWrite(MBR_PWM_PIN, 0);
+			analogWrite(MBL_PWM_PIN, 0);
+                        delay(2500);
+                       
+                       // loop to spin strider until line follower lines up
+                        while ((IRL_in != 0b11000011) || (IRL_in != 0b11000111) || (IRL_in != 0b11100011) )
+                        {
+                          
+                        */
+                        digitalWrite(MFR_A_PIN, HIGH);
+			digitalWrite(MFR_B_PIN, LOW);
+			
+			digitalWrite(MBR_A_PIN, LOW);
+			digitalWrite(MBR_B_PIN, HIGH);
+		
+			digitalWrite(MFL_A_PIN, LOW);
+			digitalWrite(MFL_B_PIN, HIGH);
+		
+			digitalWrite(MBL_A_PIN, LOW);
+			digitalWrite(MBL_B_PIN, HIGH);
+		
+			analogWrite(MFR_PWM_PIN, 255);
+			analogWrite(MFL_PWM_PIN, 255);
+			
+			analogWrite(MBR_PWM_PIN, 255);
+			analogWrite(MBL_PWM_PIN, 255);
+
+                        /*IRL_in=0;
+                        for (int i=0; i<8; i++)
+                        {  
+                         IRL_in = (IRL_in << 1) + digitalRead(IRL_PIN_s7 - i);
+                        }
                         
-      
-      // then spins that direction until line follower is inline
-     
-    }
-     
-    if ((IRL_in == 0b00001111) || (IRL_in == 0b00011111) || (IRL_in == 0b00111111))
-    {
-      // strider moves up abit to make centre inline with turn
-      // then spins that direction until line follower is inline
-     
-    }  */
-    
+                        } */ 
 
 }
+
